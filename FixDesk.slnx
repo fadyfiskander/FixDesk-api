@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FixDesk.Application/FixDesk.Application.csproj" Id="905b0f01-bd5b-48c9-ae0c-1fe3fd339036" />
+  <Project Path="FixDesk.Domain/FixDesk.Domain.csproj" Id="444ea19d-938e-4763-9375-7399ae1c15d7" />
+  <Project Path="FixDesk.Infrastructure/FixDesk.Infrastructure.csproj" Id="f3cabb7a-ca74-479d-b3c5-ee5a079d233a" />
+  <Project Path="Host/FixDesk.Host.csproj" />
+</Solution>
