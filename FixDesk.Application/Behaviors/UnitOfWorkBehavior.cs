@@ -1,4 +1,4 @@
-﻿using Inventory.Application.Common.Interfaces;
+﻿using FixDesk.Application.Common.Interfaces;
 using MediatR;
 
 namespace FixDesk.Application.Behaviors;
@@ -7,9 +7,9 @@ public class UnitOfWorkBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
 {
-    private readonly IInventoryUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UnitOfWorkBehavior(IInventoryUnitOfWork unitOfWork)
+    public UnitOfWorkBehavior(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

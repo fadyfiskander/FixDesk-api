@@ -1,18 +1,17 @@
+using FixDesk.Application.Common.Interfaces;
 using FluentValidation;
-using Inventory.Application.Common.Interfaces;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FixDesk.Application.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
 {
-    private readonly IServiceProvider _provider;
+    private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(IServiceProvider provider)
+    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
-        _provider = provider;
+        _validators = validators;
     }
 
     public async Task<TResponse> Handle(
@@ -20,27 +19,15 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        // The pipeline receives the Application-side MediatR wrapper, while validators are
-        // written against the pure contract record that lives in Inventory.Contracts.
-        // Resolve the carried contract and validate it against its own validators.
-        object target = request;
-        if (request is IContractRequest contractCarrier)
-            target = contractCarrier.Contract;
-
-        var targetType = target.GetType();
-        var validatorType = typeof(IValidator<>).MakeGenericType(targetType);
-
-        var validators = _provider.GetServices(validatorType).Cast<IValidator>().ToArray();
-        if (validators.Length == 0)
+        if (!_validators.Any())
         {
             return await next();
         }
 
-        var contextType = typeof(FluentValidation.ValidationContext<>).MakeGenericType(targetType);
-        var context = (IValidationContext)Activator.CreateInstance(contextType, target)!;
+        var context = new ValidationContext<TRequest>(request);
 
         var validationResults = await Task.WhenAll(
-            validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
         var errorsDictionary = validationResults
             .SelectMany(x => x.Errors)

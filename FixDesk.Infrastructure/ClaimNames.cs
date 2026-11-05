@@ -4,8 +4,6 @@ using System.Text;
 
 namespace FixDesk.Infrastructure
 {
-    namespace FixDesk.Infrastructure.Authentication
-    {
         public static class ClaimNames
         {
             public const string UserId = "user_id";
@@ -13,6 +11,4 @@ namespace FixDesk.Infrastructure
             public const string Token = "token";
             public const string UserRole = "user_role";
         }
-    }
-
 }

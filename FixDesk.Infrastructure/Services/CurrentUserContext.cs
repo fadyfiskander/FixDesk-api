@@ -3,7 +3,7 @@ using FixDesk.Domain.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using FixDesk.Infrastructure.Identity.Infrastructure.Authentication;
+using FixDesk.Infrastructure;
 
 namespace Infrastructure.Identity
 {
