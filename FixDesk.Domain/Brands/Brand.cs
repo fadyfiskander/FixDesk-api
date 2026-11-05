@@ -3,42 +3,33 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FixDesk.Domain.Brands
 {
+    // Lookup: الاسم فقط، IsActive بدل الحذف، وUnique على الاسم (يُفرض في الـ Infrastructure).
     public class Brand : AggregateRoot<BrandId>
     {
         public string Name { get; private set; }
-        public string Description { get; private set; }
         public bool IsActive { get; private set; }
 
         [SetsRequiredMembers]
-        private Brand(string name, string description)
+        private Brand(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Brand name cannot be null or empty.", nameof(name));
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentException("Brand description cannot be null or empty.", nameof(description));
+
             Id = BrandId.New();
-            Name = name;
-            Description = description;
+            Name = name.Trim();
             IsActive = true;
         }
 
-        public static Brand Create(string name, string description)
+        public static Brand Create(string name)
         {
-            return new Brand(name, description);
+            return new Brand(name);
         }
 
         public void Rename(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Brand name cannot be null or empty.", nameof(name));
-            Name = name;
-        }
-
-        public void UpdateDescription(string description)
-        {
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentException("Brand description cannot be null or empty.", nameof(description));
-            Description = description;
+            Name = name.Trim();
         }
 
         public void Activate()

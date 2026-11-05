@@ -2,33 +2,34 @@
 using FixDesk.Domain.Categories;
 using FixDesk.Domain.Customers;
 using FixDesk.Domain.Devices;
+using FixDesk.Domain.Identity;
 using FixDesk.Domain.RepairTickets;
-using FixDesk.Domain.TicketQuotes;
-using FixDesk.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using FixDesk.Domain.Settings;
+using FixDesk.Domain.Technicians;
 using Microsoft.EntityFrameworkCore;
 
 namespace FixDesk.Infrastructure.Persistence
 {
-    internal class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+    // DbContext واحد (المرجع - قسم 2)، SQLite ملف واحد.
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Brand> Brands { get; set; }
-        public DbSet<Device> Devices { get; set; }
-        public DbSet<RepairTicket> RepairTickets { get; set; }
-        public DbSet<TicketQuote> TicketQuotes { get; set; }
+        public DbSet<Customer> Customers => Set<Customer>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Brand> Brands => Set<Brand>();
+        public DbSet<Device> Devices => Set<Device>();
+        public DbSet<RepairTicket> RepairTickets => Set<RepairTicket>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Technician> Technicians => Set<Technician>();
+        public DbSet<ShopSettings> ShopSettings => Set<ShopSettings>();
     }
 }

@@ -3,43 +3,33 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FixDesk.Domain.Categories
 {
+    // Lookup: الاسم فقط، IsActive بدل الحذف، وUnique على الاسم (يُفرض في الـ Infrastructure).
     public class Category : AggregateRoot<CategoryId>
     {
         public string Name { get; private set; }
-        public string Description { get; private set; }
         public bool IsActive { get; private set; }
 
         [SetsRequiredMembers]
-        private Category(string name, string description)
+        private Category(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentException("Category description cannot be null or empty.", nameof(description));
 
             Id = CategoryId.New();
-            Name = name;
-            Description = description;
+            Name = name.Trim();
             IsActive = true;
         }
 
-        public static Category Create(string name, string description)
+        public static Category Create(string name)
         {
-            return new Category(name, description);
+            return new Category(name);
         }
 
         public void Rename(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
-            Name = name;
-        }
-
-        public void UpdateDescription(string description)
-        {
-            if (string.IsNullOrEmpty(description))
-                throw new ArgumentException("Category description cannot be null or empty.", nameof(description));
-            Description = description;
+            Name = name.Trim();
         }
 
         public void Activate()

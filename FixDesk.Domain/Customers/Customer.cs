@@ -3,88 +3,96 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FixDesk.Domain.Customers
 {
+    // العميل: الاسم والموبايل إلزاميان، والباقي اختياري (المرجع - قسم 5).
     public class Customer : AggregateRoot<CustomerId>
     {
-        public string FirstName { get; private set; }
-        public string LastName { get; private set; }
+        public string Name { get; private set; }
         public string PhoneNumber { get; private set; }
         public string? SecondaryPhoneNumber { get; private set; }
-        public string Email { get; private set; }
-        public string Address { get; private set; }
+        public string? Email { get; private set; }
+        public string? Address { get; private set; }
         public string? Notes { get; private set; }
 
+        // Soft Delete: للعملاء والأجهزة (المرجع - قسم 5)، مش حذف فعلي.
+        public bool IsDeleted { get; private set; }
+
         [SetsRequiredMembers]
-        private Customer(string firstName, string lastName, string phoneNumber, string? secondaryPhoneNumber, string email, string address, string? notes)
+        private Customer(string name, string phoneNumber, string? secondaryPhoneNumber, string? email, string? address, string? notes)
         {
-            if (string.IsNullOrEmpty(firstName))
-                throw new ArgumentException("First name cannot be null or empty.", nameof(firstName));
-            if (string.IsNullOrEmpty(lastName))
-                throw new ArgumentException("Last name cannot be null or empty.", nameof(lastName));
-            if (string.IsNullOrEmpty(phoneNumber))
-                throw new ArgumentException("Phone number cannot be null or empty.", nameof(phoneNumber));
-            if (string.IsNullOrEmpty(email))
-                throw new ArgumentException("Email cannot be null or empty.", nameof(email));
-            if (string.IsNullOrEmpty(address))
-                throw new ArgumentException("Address cannot be null or empty.", nameof(address));
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Customer name cannot be null or empty.", nameof(name));
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                throw new ArgumentException("Customer phone number cannot be null or empty.", nameof(phoneNumber));
 
-            Id = new CustomerId(Guid.NewGuid());
-            FirstName = firstName;
-            LastName = lastName;
-            PhoneNumber = phoneNumber;
-            SecondaryPhoneNumber = secondaryPhoneNumber;
-            Email = email;
-            Address = address;
-            Notes = notes;
+            Id = CustomerId.New();
+            Name = name.Trim();
+            PhoneNumber = phoneNumber.Trim();
+            SecondaryPhoneNumber = TrimOrNull(secondaryPhoneNumber);
+            Email = TrimOrNull(email);
+            Address = TrimOrNull(address);
+            Notes = TrimOrNull(notes);
+            IsDeleted = false;
         }
 
-        public static Customer Create(string firstName, string lastName, string phoneNumber, string? secondaryPhoneNumber, string email, string address, string? notes)
+        public static Customer Create(
+            string name,
+            string phoneNumber,
+            string? secondaryPhoneNumber = null,
+            string? email = null,
+            string? address = null,
+            string? notes = null)
         {
-            return new Customer(firstName, lastName, phoneNumber, secondaryPhoneNumber, email, address, notes);
+            return new Customer(name, phoneNumber, secondaryPhoneNumber, email, address, notes);
         }
 
-        public void UpdateFirstName(string firstName)
+        public void UpdateName(string name)
         {
-            if (string.IsNullOrEmpty(firstName))
-                throw new ArgumentException("First name cannot be null or empty.", nameof(firstName));
-            FirstName = firstName;
-        }
-
-        public void UpdateLastName(string lastName)
-        {
-            if (string.IsNullOrEmpty(lastName))
-                throw new ArgumentException("Last name cannot be null or empty.", nameof(lastName));
-            LastName = lastName;
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Customer name cannot be null or empty.", nameof(name));
+            Name = name.Trim();
         }
 
         public void UpdatePhoneNumber(string phoneNumber)
         {
-            if (string.IsNullOrEmpty(phoneNumber))
-                throw new ArgumentException("Phone number cannot be null or empty.", nameof(phoneNumber));
-            PhoneNumber = phoneNumber;
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                throw new ArgumentException("Customer phone number cannot be null or empty.", nameof(phoneNumber));
+            PhoneNumber = phoneNumber.Trim();
         }
 
-        public void UpdateSecondaryPhoneNumber(string secondaryPhoneNumber)
+        public void UpdateSecondaryPhoneNumber(string? secondaryPhoneNumber)
         {
-            SecondaryPhoneNumber = secondaryPhoneNumber;
+            SecondaryPhoneNumber = TrimOrNull(secondaryPhoneNumber);
         }
 
-        public void UpdateEmail(string email)
+        public void UpdateEmail(string? email)
         {
-            if (string.IsNullOrEmpty(email))
-                throw new ArgumentException("Email cannot be null or empty.", nameof(email));
-            Email = email;
+            Email = TrimOrNull(email);
         }
 
-        public void UpdateAddress(string address)
+        public void UpdateAddress(string? address)
         {
-            if (string.IsNullOrEmpty(address))
-                throw new ArgumentException("Address cannot be null or empty.", nameof(address));
-            Address = address;
+            Address = TrimOrNull(address);
         }
 
-        public void UpdateNotes(string notes)
+        public void UpdateNotes(string? notes)
         {
-            Notes = notes;
+            Notes = TrimOrNull(notes);
+        }
+
+        public void SoftDelete()
+        {
+            IsDeleted = true;
+        }
+
+        public void Restore()
+        {
+            IsDeleted = false;
+        }
+
+        private static string? TrimOrNull(string? value)
+        {
+            var trimmed = value?.Trim();
+            return string.IsNullOrEmpty(trimmed) ? null : trimmed;
         }
     }
 }
